@@ -50,6 +50,7 @@ int main()
                     {
                         ///fourth click
                         ///push back to points vector
+                        points.push_back(Vector2f(event.mouseButton.x, event.mouseButton.y));
                     }
                 }
             }
@@ -70,6 +71,20 @@ int main()
             ///select random vertex
             ///calculate midpoint between random vertex and the last point in the vector
             ///push back the newly generated coord.
+             int randomVertexIndex = rand() % vertices.size();
+            Vector2f randomVertex = vertices[randomVertexIndex];
+
+            // Calculate midpoint between random vertex and the last point
+            Vector2f midpoint = (randomVertex + points.back()) / 2.0f;
+
+            // Push back the newly generated coordinate
+            points.push_back(midpoint);
+
+            // Draw the new point
+            RectangleShape rect(Vector2f(5, 5));
+            rect.setPosition(midpoint);
+            rect.setFillColor(Color::Red);
+            window.draw(rect);
         }
 
         /*
@@ -78,16 +93,22 @@ int main()
 		****************************************
 		*/
         window.clear();
-        for(int i = 0; i < vertices.size(); i++)
+        for(size_t i = 0; i < vertices.size(); i++)
         {
             RectangleShape rect(Vector2f(10,10));
             rect.setPosition(Vector2f(vertices[i].x, vertices[i].y));
             rect.setFillColor(Color::Blue);
             window.draw(rect);
         }
-        window.display();
-    }
-}
+         for (size_t i = 0; i < points.size(); i++)
+        {
+            // Draw the generated points
+            RectangleShape rect(Vector2f(5, 5));
+            rect.setPosition(Vector2f(points[i].x, points[i].y));
+            rect.setFillColor(Color::red);
+            window.draw(rect);
+        }
+
         window.display();
     }
 }
