@@ -1,90 +1,137 @@
-// Include important C++ libraries here
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
+#include "SFML/Graphics.hpp"
 #include <iostream>
-#include <sstream>
-#include <vector>
+#include <cmath>
 
-// Make code easier to type with "using namespace"
-using namespace sf;
-using namespace std;
+class Quadrilateral
+{
+private:
+    sf::CircleShape quad;
+    sf::CircleShape circle;
+
+    int count;
+    float Variable;
+
+    sf::Vector2f CircleXY;
+
+public:
+    Quadrilateral(int VertexNumber, float DistanceFactor);
+
+    void Movement();
+    sf::CircleShape &DrawCircle();
+    sf::CircleShape &DrawQuad();
+    void CircleSetPosition(sf::Vector2f, sf::Vector2f);
+};
+Quadrilateral::Quadrilateral(int VertexNumber, float DistanceFactor) : CircleXY(300.0f, 500.0f), count(VertexNumber), Variable(DistanceFactor)
+{
+    srand(time(0));
+    quad.setRadius(300);
+    quad.setPointCount(count);
+
+    quad.setOutlineThickness(0.8);
+    quad.setFillColor(sf::Color::Transparent);
+
+    circle.setRadius(1);
+    circle.setPosition(CircleXY);
+    circle.setFillColor(sf::Color::Magenta);
+}
+
+void Quadrilateral::CircleSetPosition(sf::Vector2f TRI, sf::Vector2f CIR)
+{
+    float PositionX = (TRI.x * (1 - Variable) + CIR.x * Variable);
+    float PositionY = (TRI.y * (1 - Variable) + CIR.y * Variable);
+
+    circle.setPosition(PositionX, PositionY);
+}
+
+void Quadrilateral::Movement()
+{
+    int random = rand() % (count * 2 ) + 1;
+
+    if (count == 4)
+    {
+        if(random < 5)
+        {
+            CircleSetPosition(quad.getPoint((random - 1)), CircleXY);
+        }
+        else if (random == 5)
+        {
+            sf::Vector2f temp((quad.getPoint(0).x + quad.getPoint(1).x) / 2, (quad.getPoint(0).y + quad.getPoint(1).y) / 2);
+            CircleSetPosition(temp, CircleXY);
+        }
+        else if (random == 6)
+        {
+            sf::Vector2f temp((quad.getPoint(1).x + quad.getPoint(2).x) / 2, (quad.getPoint(1).y + quad.getPoint(2).y) / 2);
+            CircleSetPosition(temp, CircleXY);
+        }
+        else if (random == 7)
+        {
+            sf::Vector2f temp((quad.getPoint(0).x + quad.getPoint(3).x) / 2, (quad.getPoint(0).y + quad.getPoint(3).y) / 2);
+            CircleSetPosition(temp, CircleXY);
+        }
+        else if (random == 8)
+        {
+            sf::Vector2f temp((quad.getPoint(2).x + quad.getPoint(3).x) / 2, (quad.getPoint(2).y + quad.getPoint(3).y) / 2);
+            CircleSetPosition(temp, CircleXY);
+        }
+    }
+    else
+    {
+        if (random % 2 == 0)
+            CircleSetPosition(quad.getPoint((random - 2) / 2), CircleXY);
+        else
+            CircleSetPosition(quad.getPoint((random - 1) / 2), CircleXY);
+    }
+    CircleXY = circle.getPosition();
+}
+
+sf::CircleShape &Quadrilateral::DrawCircle()
+{
+    return circle;
+}
+
+sf::CircleShape &Quadrilateral::DrawQuad()
+{
+    return quad;
+}
 
 int main()
 {
-    // Create a video mode object
-	VideoMode vm(1920, 1080);
-	// Create and open a window for the game
-	RenderWindow window(vm, "Timber Game!!", Style::Default);
+    std::cout << "Enter Vertex Number and Distance factor" << std::endl;
+    int VertexNumber;
+    float DistanceFactor;
+    std::cin >> VertexNumber >> DistanceFactor;
 
-    vector<Vector2f> vertices;
-    vector<Vector2f> points;
+    Quadrilateral Shape(VertexNumber, DistanceFactor);
 
-	while (window.isOpen())
-	{
-        /*
-		****************************************
-		Handle the players input
-		****************************************
-		*/
-        Event event;
-		while (window.pollEvent(event))
-		{
-            if (event.type == Event::Closed)
-            {
-				// Quit the game when the window is closed
-				window.close();
-            }
-            if (event.type == sf::Event::MouseButtonPressed)
-            {
-                if (event.mouseButton.button == sf::Mouse::Left)
-                {
-                    std::cout << "the left button was pressed" << std::endl;
-                    std::cout << "mouse x: " << event.mouseButton.x << std::endl;
-                    std::cout << "mouse y: " << event.mouseButton.y << std::endl;
+    sf::RenderWindow window(sf::VideoMode(800, 600), "ChaosGame");
 
-                    if(vertices.size() < 3)
-                    {
-                        vertices.push_back(Vector2f(event.mouseButton.x, event.mouseButton.y));
-                    }
-                    else if(points.size() == 0)
-                    {
-                        ///fourth click
-                        ///push back to points vector
-                    }
-                }
-            }
-        }
-        if (Keyboard::isKeyPressed(Keyboard::Escape))
-		{
-			window.close();
-		}
-        /*
-		****************************************
-		Update
-		****************************************
-		*/
+    // comment below line if want to increase the FPS and uncomment below "window.setFramerateLimit(120);" and give necessary FPS.
+    window.setVerticalSyncEnabled(true);
+    //window.setFramerateLimit(120);
 
-        if(points.size() > 0)
+    sf::RenderTexture canvas;
+    canvas.create(800,600);
+    sf::Sprite sprite;
+    sprite.setTexture(canvas.getTexture(), true);
+
+    while (window.isOpen())
+    {
+        sf::Event event;
+        while (window.pollEvent(event))
         {
-            ///generate more point(s)
-            ///select random vertex
-            ///calculate midpoint between random vertex and the last point in the vector
-            ///push back the newly generated coord.
+            if (event.type == sf::Event::Closed)
+                window.close();
         }
+        Shape.Movement();
 
-        /*
-		****************************************
-		Draw
-		****************************************
-		*/
+        canvas.draw(Shape.DrawCircle());
+        canvas.display();
+
         window.clear();
-        for(int i = 0; i < vertices.size(); i++)
-        {
-            RectangleShape rect(Vector2f(10,10));
-            rect.setPosition(Vector2f(vertices[i].x, vertices[i].y));
-            rect.setFillColor(Color::Blue);
-            window.draw(rect);
-        }
+
+        window.draw(sprite);
+	      window.draw(Shape.DrawQuad());
+
         window.display();
     }
 }
