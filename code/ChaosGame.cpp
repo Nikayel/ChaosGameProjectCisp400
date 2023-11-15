@@ -18,19 +18,6 @@ int main()
 
     vector<Vector2f> vertices;
     vector<Vector2f> points;
-    Font font;
-    if (!font.loadFromFile("arial.ttf")) {
-        cerr << "Error loading font." << endl;
-    }
-
-    Text instructionText;
-    instructionText.setFont(font);
-    instructionText.setCharacterSize(20);
-    instructionText.setFillColor(Color::White);
-    instructionText.setPosition(10.f, 10.f);
-    instructionText.setString("Click on any three points to create the vertices for the triangle.");
-
-    bool algorithmStarted = false;
 
 	while (window.isOpen())
 	{
@@ -63,8 +50,6 @@ int main()
                     {
                         ///fourth click
                         ///push back to points vector
-			    //Nikayel --
-			    points.push_back(Vector2f(event.mouseButton.x, event.mouseButton.y));
                     }
                 }
             }
@@ -82,18 +67,9 @@ int main()
         if(points.size() > 0)
         {
             ///generate more point(s)
-		for(int i = 0; i <10; ++i){
-			//Nikayel --
-			int randomVertexIndex = rand() % vertices.size();
-			Vector2f randomVertex = vertices[randomVertexIndex];
-
-			Vector2f midpoint = (randomVertex + points.back()) /2.0f;
-			
             ///select random vertex
             ///calculate midpoint between random vertex and the last point in the vector
             ///push back the newly generated coord.
-			//Nikayel --
-			points.push_back(midpoint);
         }
 
         /*
@@ -109,6 +85,9 @@ int main()
             rect.setFillColor(Color::Blue);
             window.draw(rect);
         }
+        window.display();
+    }
+}
         window.display();
     }
 }
